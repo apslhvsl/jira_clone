@@ -11,7 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
+import Profile from "./pages/profile";
 import ProjectBoard from "./pages/ProjectBoard";
 import ProjectPage from "./pages/ProjectPage";
 import Sidebar from "./components/Sidebar";
