@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { ProjectProvider, ProjectContext } from "./context/ProjectContext";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
+import Login from "./pages/login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
