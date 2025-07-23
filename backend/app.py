@@ -2,6 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from models.db import db
 import models
+import os
 from routes.auth import auth_bp
 from routes.projects import projects_bp
 from routes.project_member import project_member_bp
@@ -17,13 +18,13 @@ from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, allow_headers="*", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/flask_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'very-secret-key'
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 app.config['JWT_HEADER_NAME'] = 'Authorization'
 app.config['JWT_HEADER_TYPE'] = 'Bearer'
-
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(projects_bp)
