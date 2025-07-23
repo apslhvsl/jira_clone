@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from database import reset_and_seed_db
+from backend.database import reset_and_seed_db
 
 setup_bp = Blueprint('setup', __name__)
 

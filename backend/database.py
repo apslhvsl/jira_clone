@@ -2,7 +2,7 @@ from models.db import db
 from models import User, Team, Project, ProjectMember, BoardColumn, Item, Comment, TeamMember, ProjectTeam, ActivityLog, Notification, Role, Permission
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
-from app import app
+from flask import current_app
 
 def create_roles_and_permissions(project=None):
     role_defs = {
@@ -37,7 +37,7 @@ def create_roles_and_permissions(project=None):
     return roles
 
 def reset_and_seed_db():
-    with app.app_context():
+    with current_app.app_context():
         db.drop_all()
         db.create_all()
 
