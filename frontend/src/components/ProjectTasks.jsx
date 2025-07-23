@@ -1,26 +1,60 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { ProjectContext } from '../context/ProjectContext';
-import { Table, Button, Tag, Modal, Select, Input, Spin, Alert, Space, Typography, Form, Avatar, Tooltip, DatePicker, Collapse, Card as AntCard, List as AntList, Tooltip as AntdTooltip } from 'antd';
-import { PlusOutlined, BugOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, UserOutlined, ArrowRightOutlined, CaretRightOutlined, CaretDownOutlined, MinusOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import TaskDetailModal from './TaskDetailModal';
-import { useNavigate } from 'react-router-dom';
-import { getTypeIcon, getStatusColor, getPriorityColor } from '../utils/itemUi.jsx';
+import React, { useEffect, useState, useContext } from "react";
+import { ProjectContext } from "../context/ProjectContext";
+import {
+  Table,
+  Button,
+  Tag,
+  Modal,
+  Select,
+  Input,
+  Spin,
+  Alert,
+  Space,
+  Typography,
+  Form,
+  Avatar,
+  Tooltip,
+  DatePicker,
+  Collapse,
+  Card as AntCard,
+  List as AntList,
+  Tooltip as AntdTooltip,
+} from "antd";
+import {
+  PlusOutlined,
+  BugOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  UserOutlined,
+  ArrowRightOutlined,
+  CaretRightOutlined,
+  CaretDownOutlined,
+  MinusOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
+import TaskDetailModal from "./TaskDetailModal";
+import { useNavigate } from "react-router-dom";
+import {
+  getTypeIcon,
+  getStatusColor,
+  getPriorityColor,
+} from "../utils/itemUi.jsx";
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const TYPE_OPTIONS = [
-  { value: 'all', label: 'All' },
-  { value: 'bug', label: 'Bugs' },
-  { value: 'feature', label: 'Features' },
-  { value: 'task', label: 'Tasks' },
+  { value: "all", label: "All" },
+  { value: "bug", label: "Bugs" },
+  { value: "feature", label: "Features" },
+  { value: "task", label: "Tasks" },
 ];
 
 const SORT_OPTIONS = [
-  { value: 'priority', label: 'Priority' },
-  { value: 'due_date', label: 'Due Date' },
-  { value: 'status', label: 'Status' },
+  { value: "priority", label: "Priority" },
+  { value: "due_date", label: "Due Date" },
+  { value: "status", label: "Status" },
 ];
 
 function ProjectTasks() {
@@ -30,26 +64,26 @@ function ProjectTasks() {
   const [editTaskId, setEditTaskId] = useState(null);
   const [editForm] = Form.useForm();
   const [users, setUsers] = useState([]);
-  const [typeFilter, setTypeFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState("all");
   const [showBugModal, setShowBugModal] = useState(false);
   const [bugForm] = Form.useForm();
-  const [bugError, setBugError] = useState('');
-  const [sortField, setSortField] = useState('');
-  const [sortDir, setSortDir] = useState('asc');
-  const [alert, setAlert] = useState('');
+  const [bugError, setBugError] = useState("");
+  const [sortField, setSortField] = useState("");
+  const [sortDir, setSortDir] = useState("asc");
+  const [alert, setAlert] = useState("");
   const [columns, setColumns] = useState([]);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [taskForm] = Form.useForm();
-  const [taskError, setTaskError] = useState('');
-  const [taskType, setTaskType] = useState('task');
+  const [taskError, setTaskError] = useState("");
+  const [taskType, setTaskType] = useState("task");
   const [epics, setEpics] = useState([]);
   // Expand/collapse state for epics
   const [expandedEpics, setExpandedEpics] = useState([]);
   const toggleEpic = (epicId) => {
-    setExpandedEpics(expandedEpics =>
+    setExpandedEpics((expandedEpics) =>
       expandedEpics.includes(epicId)
-        ? expandedEpics.filter(id => id !== epicId)
+        ? expandedEpics.filter((id) => id !== epicId)
         : [...expandedEpics, epicId]
     );
   };
@@ -68,11 +102,11 @@ function ProjectTasks() {
 
   const fetchTasks = async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
-    let url = `http://localhost:5000/items/projects/${selectedProject.id}/items`;
-    if (typeFilter !== 'all') url += `?type=${typeFilter}`;
+    const token = localStorage.getItem("token");
+    let url = `https://jira-clone-mtig.onrender.com/items/projects/${selectedProject.id}/items`;
+    if (typeFilter !== "all") url += `?type=${typeFilter}`;
     const res = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
     if (res.ok) setTasks(data.items);
@@ -80,19 +114,25 @@ function ProjectTasks() {
   };
 
   const fetchUsers = async () => {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`http://localhost:5000/projects/${selectedProject.id}/members`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `https://jira-clone-mtig.onrender.com/projects/${selectedProject.id}/members`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     const data = await res.json();
     if (res.ok) setUsers(data.members);
   };
 
   const fetchColumns = async () => {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`http://localhost:5000/projects/${selectedProject.id}/columns`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `https://jira-clone-mtig.onrender.com/projects/${selectedProject.id}/columns`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     if (res.ok) {
       const data = await res.json();
       setColumns(data.columns);
@@ -100,13 +140,20 @@ function ProjectTasks() {
   };
 
   const fetchEpics = async () => {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`http://localhost:5000/items/projects/${selectedProject.id}/items`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `https://jira-clone-mtig.onrender.com/items/projects/${selectedProject.id}/items`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     if (res.ok) {
       const data = await res.json();
-      setEpics((data.items || []).filter(i => i.type && i.type.toLowerCase() === 'epic'));
+      setEpics(
+        (data.items || []).filter(
+          (i) => i.type && i.type.toLowerCase() === "epic"
+        )
+      );
     }
   };
 
@@ -124,180 +171,237 @@ function ProjectTasks() {
 
   // Add a mapping from display status to backend status
   const statusMap = {
-    'To Do': 'todo',
-    'In Progress': 'inprogress',
-    'In Review': 'inreview',
-    'Done': 'done',
-    'todo': 'todo',
-    'inprogress': 'inprogress',
-    'inreview': 'inreview',
-    'done': 'done',
+    "To Do": "todo",
+    "In Progress": "inprogress",
+    "In Review": "inreview",
+    Done: "done",
+    todo: "todo",
+    inprogress: "inprogress",
+    inreview: "inreview",
+    done: "done",
   };
 
   const handleEditSave = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     const values = await editForm.validateFields();
-    if (values.due_date && typeof values.due_date === 'object' && values.due_date.format) {
-      values.due_date = values.due_date.format('YYYY-MM-DD');
+    if (
+      values.due_date &&
+      typeof values.due_date === "object" &&
+      values.due_date.format
+    ) {
+      values.due_date = values.due_date.format("YYYY-MM-DD");
     }
     // Map status to backend value
     if (values.status) {
       values.status = statusMap[values.status] || values.status;
     }
-    await fetch(`http://localhost:5000/items/${editTaskId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify(values)
+    await fetch(`https://jira-clone-mtig.onrender.com/items/${editTaskId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(values),
     });
     setEditTaskId(null);
     fetchTasks();
-    setAlert('Task updated!');
-    setTimeout(() => setAlert(''), 2000);
+    setAlert("Task updated!");
+    setTimeout(() => setAlert(""), 2000);
   };
 
   const handleDelete = async (id) => {
-    console.log('Delete clicked', id);
+    console.log("Delete clicked", id);
     Modal.confirm({
-      title: 'Delete Task',
+      title: "Delete Task",
       icon: <ExclamationCircleOutlined />,
-      content: 'Are you sure you want to delete this task?',
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
+      content: "Are you sure you want to delete this task?",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
       onOk: async () => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         try {
-          const res = await fetch(`http://localhost:5000/items/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const res = await fetch(
+            `https://jira-clone-mtig.onrender.com/items/${id}`,
+            {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           const data = await res.json().catch(() => ({}));
-          console.log('Delete response:', res, data);
+          console.log("Delete response:", res, data);
           if (res.ok) {
-            fetchTasks().catch(e => console.error('fetchTasks error after delete:', e));
-            setAlert('Task deleted!');
-            setTimeout(() => setAlert(''), 2000);
+            fetchTasks().catch((e) =>
+              console.error("fetchTasks error after delete:", e)
+            );
+            setAlert("Task deleted!");
+            setTimeout(() => setAlert(""), 2000);
           } else {
-            setAlert(data.error || 'Failed to delete task');
-            setTimeout(() => setAlert(''), 3000);
+            setAlert(data.error || "Failed to delete task");
+            setTimeout(() => setAlert(""), 3000);
           }
         } catch (err) {
-          console.error('Delete error:', err);
-          setAlert('Network error while deleting task');
-          setTimeout(() => setAlert(''), 3000);
+          console.error("Delete error:", err);
+          setAlert("Network error while deleting task");
+          setTimeout(() => setAlert(""), 3000);
         }
-      }
+      },
     });
   };
 
   // Fix due_date and deprecations in handleBugSubmit
   const handleBugSubmit = async (values) => {
-    setBugError('');
-    const token = localStorage.getItem('token');
+    setBugError("");
+    const token = localStorage.getItem("token");
     // Find the 'todo' column or fallback to the first column
     let columnId = undefined;
     if (columns && columns.length > 0) {
-      const todoCol = columns.find(col => (col.status || col.name.toLowerCase().replace(/\s/g, '')) === 'todo');
+      const todoCol = columns.find(
+        (col) =>
+          (col.status || col.name.toLowerCase().replace(/\s/g, "")) === "todo"
+      );
       columnId = todoCol ? todoCol.id : columns[0].id;
     }
     if (!columnId) {
-      setBugError('No columns found for this project.');
+      setBugError("No columns found for this project.");
       return;
     }
     // Fix due_date: send only YYYY-MM-DD
-    const payload = { ...values, type: 'bug', column_id: columnId };
-    if (payload.due_date && typeof payload.due_date === 'object' && payload.due_date.format) {
-      payload.due_date = payload.due_date.format('YYYY-MM-DD');
+    const payload = { ...values, type: "bug", column_id: columnId };
+    if (
+      payload.due_date &&
+      typeof payload.due_date === "object" &&
+      payload.due_date.format
+    ) {
+      payload.due_date = payload.due_date.format("YYYY-MM-DD");
     }
     if (payload.status) {
       payload.status = statusMap[payload.status] || payload.status;
     }
-    const res = await fetch(`http://localhost:5000/items/projects/${selectedProject.id}/items`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(
+      `https://jira-clone-mtig.onrender.com/items/projects/${selectedProject.id}/items`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
     if (res.ok) {
       setShowBugModal(false);
       bugForm.resetFields();
       fetchTasks();
-      setAlert('Bug reported!');
-      setTimeout(() => setAlert(''), 2000);
+      setAlert("Bug reported!");
+      setTimeout(() => setAlert(""), 2000);
     } else {
       const data = await res.json();
-      setBugError(data.error || 'Failed to create bug');
+      setBugError(data.error || "Failed to create bug");
     }
   };
 
   // Sorting logic
   const sortedTasks = [...tasks].sort((a, b) => {
     if (!sortField) return 0;
-    let aVal = a[sortField], bVal = b[sortField];
-    if (sortField === 'due_date') {
-      aVal = aVal || '';
-      bVal = bVal || '';
-      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    let aVal = a[sortField],
+      bVal = b[sortField];
+    if (sortField === "due_date") {
+      aVal = aVal || "";
+      bVal = bVal || "";
+      return sortDir === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
     }
-    if (sortField === 'priority') {
-      const order = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1, '': 0, null: 0, undefined: 0 };
-      return sortDir === 'asc' ? (order[aVal] - order[bVal]) : (order[bVal] - order[aVal]);
+    if (sortField === "priority") {
+      const order = {
+        Critical: 4,
+        High: 3,
+        Medium: 2,
+        Low: 1,
+        "": 0,
+        null: 0,
+        undefined: 0,
+      };
+      return sortDir === "asc"
+        ? order[aVal] - order[bVal]
+        : order[bVal] - order[aVal];
     }
-    if (sortField === 'status') {
-      const order = { 'todo': 1, 'inprogress': 2, 'inreview': 3, 'done': 4 };
-      return sortDir === 'asc' ? (order[aVal] - order[bVal]) : (order[bVal] - order[aVal]);
+    if (sortField === "status") {
+      const order = { todo: 1, inprogress: 2, inreview: 3, done: 4 };
+      return sortDir === "asc"
+        ? order[aVal] - order[bVal]
+        : order[bVal] - order[aVal];
     }
-    return sortDir === 'asc' ? String(aVal).localeCompare(String(bVal)) : String(bVal).localeCompare(String(aVal));
+    return sortDir === "asc"
+      ? String(aVal).localeCompare(String(bVal))
+      : String(bVal).localeCompare(String(aVal));
   });
 
   const handleTaskSubmit = async (values) => {
-    setTaskError('');
-    const token = localStorage.getItem('token');
+    setTaskError("");
+    const token = localStorage.getItem("token");
     let columnId = undefined;
     if (columns && columns.length > 0) {
-      const todoCol = columns.find(col => (col.status || col.name.toLowerCase().replace(/\s/g, '')) === 'todo');
+      const todoCol = columns.find(
+        (col) =>
+          (col.status || col.name.toLowerCase().replace(/\s/g, "")) === "todo"
+      );
       columnId = todoCol ? todoCol.id : columns[0].id;
     }
     if (!columnId) {
-      setTaskError('No columns found for this project.');
+      setTaskError("No columns found for this project.");
       return;
     }
     const payload = { ...values, type: taskType, column_id: columnId };
-    if (payload.due_date && typeof payload.due_date === 'object' && payload.due_date.format) {
-      payload.due_date = payload.due_date.format('YYYY-MM-DD');
+    if (
+      payload.due_date &&
+      typeof payload.due_date === "object" &&
+      payload.due_date.format
+    ) {
+      payload.due_date = payload.due_date.format("YYYY-MM-DD");
     }
     if (payload.status) {
       payload.status = statusMap[payload.status] || payload.status;
     }
-    if (taskType !== 'epic' && values.parent_id) {
+    if (taskType !== "epic" && values.parent_id) {
       payload.parent_id = values.parent_id;
     }
-    const res = await fetch(`http://localhost:5000/items/projects/${selectedProject.id}/items`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(
+      `https://jira-clone-mtig.onrender.com/items/projects/${selectedProject.id}/items`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
     if (res.ok) {
       setShowTaskModal(false);
       taskForm.resetFields();
-      setTaskType('task');
+      setTaskType("task");
       fetchTasks();
-      setAlert('Task created!');
-      setTimeout(() => setAlert(''), 2000);
+      setAlert("Task created!");
+      setTimeout(() => setAlert(""), 2000);
     } else {
       const data = await res.json();
-      setTaskError(data.error || 'Failed to create task');
+      setTaskError(data.error || "Failed to create task");
     }
   };
 
   // Group tasks by epic
-  const epicsList = tasks.filter(t => t.type && t.type.toLowerCase() === 'epic');
+  const epicsList = tasks.filter(
+    (t) => t.type && t.type.toLowerCase() === "epic"
+  );
   const tasksByEpic = {};
-  epicsList.forEach(epic => {
+  epicsList.forEach((epic) => {
     tasksByEpic[epic.id] = [];
   });
   const nonEpicTasks = [];
-  tasks.forEach(t => {
-    if (t.type && t.type.toLowerCase() === 'epic') return;
+  tasks.forEach((t) => {
+    if (t.type && t.type.toLowerCase() === "epic") return;
     if (t.parent_id && tasksByEpic[t.parent_id]) {
       tasksByEpic[t.parent_id].push(t);
     } else {
@@ -306,62 +410,100 @@ function ProjectTasks() {
   });
   // Flatten for table: [epic, ...children (if expanded), ...non-epic tasks]
   const groupedTasks = [];
-  epicsList.forEach(epic => {
+  epicsList.forEach((epic) => {
     groupedTasks.push({ ...epic, isEpic: true });
     if (expandedEpics.includes(epic.id)) {
-      tasksByEpic[epic.id].forEach(child => groupedTasks.push({ ...child, isChild: true, parentEpicId: epic.id }));
+      tasksByEpic[epic.id].forEach((child) =>
+        groupedTasks.push({ ...child, isChild: true, parentEpicId: epic.id })
+      );
     }
   });
-  nonEpicTasks.forEach(t => groupedTasks.push(t));
+  nonEpicTasks.forEach((t) => groupedTasks.push(t));
 
   const taskTableColumns = [
     {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
       render: (text, record) => {
         if (record.isEpic) {
           const expanded = expandedEpics.includes(record.id);
           return (
-            <span style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{ display: "flex", alignItems: "center" }}>
               <Button
                 type="text"
                 size="small"
                 icon={expanded ? <MinusOutlined /> : <PlusOutlined />}
-                onClick={e => {
+                onClick={(e) => {
                   e.stopPropagation();
                   toggleEpic(record.id);
                 }}
                 style={{ marginRight: 4 }}
               />
-              <Tag color={text === 'bug' ? 'red' : text === 'feature' ? 'blue' : text === 'epic' ? '#722ed1' : 'green'}>{text}</Tag>
+              <Tag
+                color={
+                  text === "bug"
+                    ? "red"
+                    : text === "feature"
+                    ? "blue"
+                    : text === "epic"
+                    ? "#722ed1"
+                    : "green"
+                }
+              >
+                {text}
+              </Tag>
             </span>
           );
         }
         return (
-        <Tag color={text === 'bug' ? 'red' : text === 'feature' ? 'blue' : text === 'epic' ? '#722ed1' : 'green'}>{text}</Tag>
-        );
-      }
-    },
-    {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
-      render: (text, record) => {
-        if (record.isEpic) return (
-          <span
-            style={{ fontWeight: 700, color: '#722ed1', cursor: 'pointer' }}
-            onClick={e => { e.stopPropagation(); navigate(`/items/${record.id}`); }}
+          <Tag
+            color={
+              text === "bug"
+                ? "red"
+                : text === "feature"
+                ? "blue"
+                : text === "epic"
+                ? "#722ed1"
+                : "green"
+            }
           >
             {text}
-          </span>
+          </Tag>
         );
-        if (record.isChild) return <span style={{ marginLeft: 32, display: 'inline-block' }}>{text}</span>;
+      },
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      render: (text, record) => {
+        if (record.isEpic)
+          return (
+            <span
+              style={{ fontWeight: 700, color: "#722ed1", cursor: "pointer" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/items/${record.id}`);
+              }}
+            >
+              {text}
+            </span>
+          );
+        if (record.isChild)
+          return (
+            <span style={{ marginLeft: 32, display: "inline-block" }}>
+              {text}
+            </span>
+          );
         return (
           <AntdTooltip title="Click to view details">
             <span
-              style={{ color: '#1677ff', cursor: 'pointer' }}
-              onClick={e => { e.stopPropagation(); navigate(`/items/${record.id}`); }}
+              style={{ color: "#1677ff", cursor: "pointer" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/items/${record.id}`);
+              }}
             >
               {text}
             </span>
@@ -370,37 +512,51 @@ function ProjectTasks() {
       },
     },
     {
-      title: 'Priority',
-      dataIndex: 'priority',
-      key: 'priority',
+      title: "Priority",
+      dataIndex: "priority",
+      key: "priority",
       render: (text) => (
-        <Tag color={text === 'High' ? 'red' : text === 'Medium' ? 'orange' : 'blue'}>
+        <Tag
+          color={
+            text === "High" ? "red" : text === "Medium" ? "orange" : "blue"
+          }
+        >
           {text}
         </Tag>
       ),
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (text) => (
-        <Tag color={text === 'todo' ? 'blue' : text === 'inprogress' ? 'orange' : text === 'inreview' ? 'purple' : 'green'}>
+        <Tag
+          color={
+            text === "todo"
+              ? "blue"
+              : text === "inprogress"
+              ? "orange"
+              : text === "inreview"
+              ? "purple"
+              : "green"
+          }
+        >
           {text}
         </Tag>
       ),
     },
     {
-      title: 'Due Date',
-      dataIndex: 'due_date',
-      key: 'due_date',
-      render: (date) => (date ? dayjs(date).format('YYYY-MM-DD') : 'N/A'),
+      title: "Due Date",
+      dataIndex: "due_date",
+      key: "due_date",
+      render: (date) => (date ? dayjs(date).format("YYYY-MM-DD") : "N/A"),
     },
     {
-      title: 'Assignee',
-      dataIndex: 'assignee_id',
-      key: 'assignee_id',
+      title: "Assignee",
+      dataIndex: "assignee_id",
+      key: "assignee_id",
       render: (assigneeId) => {
-        const assignee = users.find(u => u.user_id === assigneeId);
+        const assignee = users.find((u) => u.user_id === assigneeId);
         return assignee ? (
           <Space>
             <Avatar icon={<UserOutlined />} src={assignee.avatar_url} />
@@ -412,16 +568,27 @@ function ProjectTasks() {
       },
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record) => (
         <Space>
           <Tooltip title="View Details">
-            <Button type="text" icon={<ExclamationCircleOutlined />} onClick={() => { setSelectedTaskId(record.id); setEditTaskId(null); }} />
+            <Button
+              type="text"
+              icon={<ExclamationCircleOutlined />}
+              onClick={() => {
+                setSelectedTaskId(record.id);
+                setEditTaskId(null);
+              }}
+            />
           </Tooltip>
           {canEditOrDelete(record) && (
             <Tooltip title="Delete">
-              <Button type="text" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                onClick={() => handleDelete(record.id)}
+              />
             </Tooltip>
           )}
         </Space>
@@ -433,28 +600,54 @@ function ProjectTasks() {
   const renderChildTasks = (children) => (
     <AntList
       dataSource={children}
-      renderItem={child => (
+      renderItem={(child) => (
         <AntCard
           key={child.id}
           size="small"
-          style={{ marginBottom: 12, borderLeft: '4px solid #d3adf7', background: '#fff' }}
+          style={{
+            marginBottom: 12,
+            borderLeft: "4px solid #d3adf7",
+            background: "#fff",
+          }}
           bodyStyle={{ padding: 12 }}
         >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <ArrowRightOutlined style={{ color: '#722ed1', marginRight: 8, fontSize: 16 }} />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <ArrowRightOutlined
+              style={{ color: "#722ed1", marginRight: 8, fontSize: 16 }}
+            />
             <span style={{ fontWeight: 500 }}>{child.title}</span>
-            <span style={{ marginLeft: 12, fontSize: 12, color: '#888' }}>{child.type && child.type.charAt(0).toUpperCase() + child.type.slice(1)}</span>
-            {child.status && <Tag style={{ marginLeft: 12 }}>{child.status}</Tag>}
-            {child.priority && <Tag color={child.priority === 'High' ? 'red' : child.priority === 'Medium' ? 'orange' : 'blue'} style={{ marginLeft: 12 }}>{child.priority}</Tag>}
+            <span style={{ marginLeft: 12, fontSize: 12, color: "#888" }}>
+              {child.type &&
+                child.type.charAt(0).toUpperCase() + child.type.slice(1)}
+            </span>
+            {child.status && (
+              <Tag style={{ marginLeft: 12 }}>{child.status}</Tag>
+            )}
+            {child.priority && (
+              <Tag
+                color={
+                  child.priority === "High"
+                    ? "red"
+                    : child.priority === "Medium"
+                    ? "orange"
+                    : "blue"
+                }
+                style={{ marginLeft: 12 }}
+              >
+                {child.priority}
+              </Tag>
+            )}
           </div>
         </AntCard>
       )}
-      locale={{ emptyText: <span style={{ color: '#bbb' }}>No child tasks</span> }}
+      locale={{
+        emptyText: <span style={{ color: "#bbb" }}>No child tasks</span>,
+      }}
     />
   );
 
   // Get current user from localStorage
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [projectMembers, setProjectMembers] = useState([]);
 
   useEffect(() => {
@@ -464,45 +657,107 @@ function ProjectTasks() {
   }, [selectedProject]);
 
   const fetchProjectMembers = async () => {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`http://localhost:5000/projects/${selectedProject.id}/members`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `https://jira-clone-mtig.onrender.com/projects/${selectedProject.id}/members`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     if (res.ok) {
       const data = await res.json();
       setProjectMembers(data.members || []);
     }
   };
 
-  const myProjectRole = projectMembers.find(m => m.user_id === user.id)?.role;
-  const canAddTask = myProjectRole === 'admin' || myProjectRole === 'manager' || myProjectRole === 'member';
+  const myProjectRole = projectMembers.find((m) => m.user_id === user.id)?.role;
+  const canAddTask =
+    myProjectRole === "admin" ||
+    myProjectRole === "manager" ||
+    myProjectRole === "member";
   const canEditOrDelete = (item) => {
-    return myProjectRole === 'admin' || myProjectRole === 'manager' || myProjectRole === 'member' || item.assignee_id === user.id || item.reporter_id === user.id;
+    return (
+      myProjectRole === "admin" ||
+      myProjectRole === "manager" ||
+      myProjectRole === "member" ||
+      item.assignee_id === user.id ||
+      item.reporter_id === user.id
+    );
   };
 
   return (
-    <div style={{ background: '#fff', borderRadius: 8, padding: 24, marginBottom: 32 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}>Project Tasks</Title>
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 8,
+        padding: 24,
+        marginBottom: 32,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+        }}
+      >
+        <Title level={4} style={{ margin: 0 }}>
+          Project Tasks
+        </Title>
         <Space>
-          <Select value={typeFilter} onChange={setTypeFilter} style={{ width: 120 }}>
-            {TYPE_OPTIONS.map(opt => <Option key={opt.value} value={opt.value}>{opt.label}</Option>)}
+          <Select
+            value={typeFilter}
+            onChange={setTypeFilter}
+            style={{ width: 120 }}
+          >
+            {TYPE_OPTIONS.map((opt) => (
+              <Option key={opt.value} value={opt.value}>
+                {opt.label}
+              </Option>
+            ))}
           </Select>
-          <Select value={sortField} onChange={setSortField} style={{ width: 120 }} placeholder="Sort by">
+          <Select
+            value={sortField}
+            onChange={setSortField}
+            style={{ width: 120 }}
+            placeholder="Sort by"
+          >
             <Option value="">None</Option>
-            {SORT_OPTIONS.map(opt => <Option key={opt.value} value={opt.value}>{opt.label}</Option>)}
+            {SORT_OPTIONS.map((opt) => (
+              <Option key={opt.value} value={opt.value}>
+                {opt.label}
+              </Option>
+            ))}
           </Select>
           {sortField && (
-            <Button size="small" onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>{sortDir === 'asc' ? 'Asc' : 'Desc'}</Button>
+            <Button
+              size="small"
+              onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+            >
+              {sortDir === "asc" ? "Asc" : "Desc"}
+            </Button>
           )}
           {canAddTask && (
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowTaskModal(true)} style={{ marginBottom: 16 }}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowTaskModal(true)}
+              style={{ marginBottom: 16 }}
+            >
               Add Task
             </Button>
           )}
         </Space>
       </div>
-      {alert && <Alert message={alert} type="success" showIcon style={{ marginBottom: 12 }} />}
+      {alert && (
+        <Alert
+          message={alert}
+          type="success"
+          showIcon
+          style={{ marginBottom: 12 }}
+        />
+      )}
       <Table
         dataSource={groupedTasks}
         columns={taskTableColumns}
@@ -511,35 +766,57 @@ function ProjectTasks() {
         pagination={false}
         size="middle"
         bordered
-        rowClassName={record => record.isEpic ? 'epic-row' : record.isChild ? 'child-task-row' : ''}
+        rowClassName={(record) =>
+          record.isEpic ? "epic-row" : record.isChild ? "child-task-row" : ""
+        }
         style={{ marginTop: 16 }}
       />
       <Modal
         open={showTaskModal}
         title="Create"
-        onCancel={() => { setShowTaskModal(false); setTaskType('task'); }}
+        onCancel={() => {
+          setShowTaskModal(false);
+          setTaskType("task");
+        }}
         onOk={() => taskForm.submit()}
         destroyOnClose
       >
         <Form form={taskForm} layout="vertical" onFinish={handleTaskSubmit}>
-          <Form.Item label="Type" name="type" initialValue="task" rules={[{ required: true, message: 'Please select a type' }]}> 
-            <Select value={taskType} onChange={val => { setTaskType(val); taskForm.setFieldsValue({ parent_id: undefined }); }}>
+          <Form.Item
+            label="Type"
+            name="type"
+            initialValue="task"
+            rules={[{ required: true, message: "Please select a type" }]}
+          >
+            <Select
+              value={taskType}
+              onChange={(val) => {
+                setTaskType(val);
+                taskForm.setFieldsValue({ parent_id: undefined });
+              }}
+            >
               <Option value="epic">Epic</Option>
               <Option value="task">Task</Option>
               <Option value="bug">Bug</Option>
               <Option value="feature">Feature</Option>
             </Select>
           </Form.Item>
-          {taskType !== 'epic' && (
+          {taskType !== "epic" && (
             <Form.Item label="Parent Epic" name="parent_id">
               <Select allowClear placeholder="Select an epic">
-                {epics.map(e => (
-                  <Option key={e.id} value={e.id}>{e.title}</Option>
+                {epics.map((e) => (
+                  <Option key={e.id} value={e.id}>
+                    {e.title}
+                  </Option>
                 ))}
               </Select>
             </Form.Item>
           )}
-          <Form.Item label="Title" name="title" rules={[{ required: true, message: 'Title is required' }]}> 
+          <Form.Item
+            label="Title"
+            name="title"
+            rules={[{ required: true, message: "Title is required" }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item label="Description" name="description">
@@ -553,22 +830,44 @@ function ProjectTasks() {
             </Select>
           </Form.Item>
           <Form.Item label="Assignee" name="assignee_id">
-            <Select allowClear showSearch optionFilterProp="children" placeholder="Assign to...">
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              placeholder="Assign to..."
+            >
               {user.id && (
-                <Option value={user.id} key="me">Assign to me ({user.username || user.email || 'Me'})</Option>
+                <Option value={user.id} key="me">
+                  Assign to me ({user.username || user.email || "Me"})
+                </Option>
               )}
-              {users.filter(m => m.user_id !== user.id).map(m => (
-                <Option key={m.user_id} value={m.user_id}>{m.username || m.email}</Option>
-              ))}
+              {users
+                .filter((m) => m.user_id !== user.id)
+                .map((m) => (
+                  <Option key={m.user_id} value={m.user_id}>
+                    {m.username || m.email}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
           <Form.Item label="Due Date" name="due_date">
-            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
           </Form.Item>
-          {taskError && <Alert message={taskError} type="error" showIcon style={{ marginBottom: 12 }} />}
+          {taskError && (
+            <Alert
+              message={taskError}
+              type="error"
+              showIcon
+              style={{ marginBottom: 12 }}
+            />
+          )}
         </Form>
       </Modal>
-      <TaskDetailModal isOpen={!!selectedTaskId} onRequestClose={() => setSelectedTaskId(null)} taskId={selectedTaskId} />
+      <TaskDetailModal
+        isOpen={!!selectedTaskId}
+        onRequestClose={() => setSelectedTaskId(null)}
+        taskId={selectedTaskId}
+      />
       <style>{`
         .child-task-row td {
           border-left: 4px solid #d3adf7 !important;

@@ -1,9 +1,26 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Card, Tabs, List, Tag, Spin, Descriptions, message, Button } from 'antd';
-import { ProjectOutlined, TeamOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import { getTypeIcon, getStatusColor, getPriorityColor } from '../utils/itemUi.jsx';
-import { ProjectContext } from '../context/ProjectContext.jsx';
+import React, { useEffect, useState, useContext } from "react";
+import {
+  Card,
+  Tabs,
+  List,
+  Tag,
+  Spin,
+  Descriptions,
+  message,
+  Button,
+} from "antd";
+import {
+  ProjectOutlined,
+  TeamOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
+import {
+  getTypeIcon,
+  getStatusColor,
+  getPriorityColor,
+} from "../utils/itemUi.jsx";
+import { ProjectContext } from "../context/ProjectContext.jsx";
 
 function Profile() {
   // --- FIX: Use the central context to get the current user ---
@@ -20,13 +37,19 @@ function Profile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       try {
         // Fetch all data concurrently for better performance
         const [tasksRes, projectsRes, teamsRes] = await Promise.all([
-          fetch('http://localhost:5000/items/my-tasks', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('http://localhost:5000/projects', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('http://localhost:5000/teams/my-teams', { headers: { 'Authorization': `Bearer ${token}` } })
+          fetch("https://jira-clone-mtig.onrender.com/items/my-tasks", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("https://jira-clone-mtig.onrender.com/projects", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("https://jira-clone-mtig.onrender.com/teams/my-teams", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         const tasksData = await tasksRes.json();
@@ -36,9 +59,8 @@ function Profile() {
         setTasks(tasksData.tasks || []);
         setProjects(projectsData.projects || []);
         setTeams(teamsData.teams || []);
-
       } catch (err) {
-        message.error('Failed to load profile data');
+        message.error("Failed to load profile data");
       } finally {
         setLoading(false);
       }
@@ -55,11 +77,14 @@ function Profile() {
 
   const fetchInvitations = async () => {
     setInvLoading(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     try {
-      const res = await fetch('http://localhost:5000/my-invitations', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetch(
+        "https://jira-clone-mtig.onrender.com/my-invitations",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (res.ok) {
         const data = await res.json();
         setInvitations(data.invitations || []);
@@ -71,35 +96,42 @@ function Profile() {
   };
 
   const handleInvitationAction = async (inviteId, projectId, action) => {
-    setInvActionLoading(l => ({ ...l, [inviteId]: true }));
-    const token = localStorage.getItem('token');
+    setInvActionLoading((l) => ({ ...l, [inviteId]: true }));
+    const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5000/projects/${projectId}/invitation/${inviteId}/${action}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetch(
+        `https://jira-clone-mtig.onrender.com/projects/${projectId}/invitation/${inviteId}/${action}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (res.ok) {
-        setInvitations(inv => inv.filter(i => i.id !== inviteId));
+        setInvitations((inv) => inv.filter((i) => i.id !== inviteId));
         message.success(`Invitation ${action}ed successfully.`);
       } else {
-        message.error('Failed to update invitation');
+        message.error("Failed to update invitation");
       }
     } catch {
-      message.error('Network error');
+      message.error("Network error");
     }
-    setInvActionLoading(l => ({ ...l, [inviteId]: false }));
+    setInvActionLoading((l) => ({ ...l, [inviteId]: false }));
   };
 
   // --- FIX: Use the 'items' prop for Ant Design Tabs ---
   const tabItems = [
     {
-      key: 'tasks',
-      label: <span><CheckCircleOutlined /> My Tasks</span>,
+      key: "tasks",
+      label: (
+        <span>
+          <CheckCircleOutlined /> My Tasks
+        </span>
+      ),
       children: (
         <List
           itemLayout="horizontal"
           dataSource={tasks}
-          renderItem={task => (
+          renderItem={(task) => (
             <List.Item>
               <List.Item.Meta
                 avatar={getTypeIcon(task.type)}
@@ -107,7 +139,9 @@ function Profile() {
                 description={
                   <>
                     <Tag color={getStatusColor(task.status)}>{task.status}</Tag>
-                    <Tag color={getPriorityColor(task.priority)}>{task.priority || 'No priority'}</Tag>
+                    <Tag color={getPriorityColor(task.priority)}>
+                      {task.priority || "No priority"}
+                    </Tag>
                   </>
                 }
               />
@@ -117,51 +151,71 @@ function Profile() {
       ),
     },
     {
-      key: 'projects',
-      label: <span><ProjectOutlined /> My Projects</span>,
+      key: "projects",
+      label: (
+        <span>
+          <ProjectOutlined /> My Projects
+        </span>
+      ),
       children: (
         <List
-            dataSource={projects}
-            renderItem={project => (
-                <List.Item>
-                    <List.Item.Meta
-                        avatar={<ProjectOutlined />}
-                        title={project.name}
-                    />
-                </List.Item>
-            )}
+          dataSource={projects}
+          renderItem={(project) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<ProjectOutlined />}
+                title={project.name}
+              />
+            </List.Item>
+          )}
         />
       ),
     },
     {
-        key: 'teams',
-        label: <span><TeamOutlined /> My Teams</span>,
-        children: (
-          <List
-              dataSource={teams}
-              renderItem={team => (
-                  <List.Item>
-                      <List.Item.Meta
-                          avatar={<TeamOutlined />}
-                          title={team.name}
-                      />
-                  </List.Item>
-              )}
-          />
-        ),
-      },
+      key: "teams",
+      label: (
+        <span>
+          <TeamOutlined /> My Teams
+        </span>
+      ),
+      children: (
+        <List
+          dataSource={teams}
+          renderItem={(team) => (
+            <List.Item>
+              <List.Item.Meta avatar={<TeamOutlined />} title={team.name} />
+            </List.Item>
+          )}
+        />
+      ),
+    },
   ];
 
   if (loading || !currentUser) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}><Spin size="large" /></div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 400,
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: 32 }}>
+    <div style={{ maxWidth: 600, margin: "0 auto", padding: 32 }}>
       <Card style={{ marginBottom: 24 }}>
         <Descriptions title="Profile Info" bordered column={1}>
-          <Descriptions.Item label="Username">{currentUser.username}</Descriptions.Item>
-          <Descriptions.Item label="Email">{currentUser.email}</Descriptions.Item>
+          <Descriptions.Item label="Username">
+            {currentUser.username}
+          </Descriptions.Item>
+          <Descriptions.Item label="Email">
+            {currentUser.email}
+          </Descriptions.Item>
           {/* --- FIX: Removed the outdated global 'Role' display --- */}
         </Descriptions>
       </Card>
@@ -169,30 +223,42 @@ function Profile() {
       {invitations.length > 0 && (
         <Card style={{ marginBottom: 24 }}>
           <h3>Pending Project Invitations</h3>
-          {invLoading ? <Spin /> : (
+          {invLoading ? (
+            <Spin />
+          ) : (
             <List
               bordered
               dataSource={invitations}
-              renderItem={inv => (
+              renderItem={(inv) => (
                 <List.Item
                   actions={[
                     <Button
                       size="small"
                       type="primary"
                       loading={invActionLoading[inv.id]}
-                      onClick={() => handleInvitationAction(inv.id, inv.project_id, 'accept')}
-                    >Accept</Button>,
+                      onClick={() =>
+                        handleInvitationAction(inv.id, inv.project_id, "accept")
+                      }
+                    >
+                      Accept
+                    </Button>,
                     <Button
                       size="small"
                       danger
                       loading={invActionLoading[inv.id]}
-                      onClick={() => handleInvitationAction(inv.id, inv.project_id, 'reject')}
-                    >Reject</Button>
+                      onClick={() =>
+                        handleInvitationAction(inv.id, inv.project_id, "reject")
+                      }
+                    >
+                      Reject
+                    </Button>,
                   ]}
                 >
                   <List.Item.Meta
                     title={<span>Project ID: {inv.project_id}</span>}
-                    description={`Invited at ${new Date(inv.created_at).toLocaleString()}`}
+                    description={`Invited at ${new Date(
+                      inv.created_at
+                    ).toLocaleString()}`}
                   />
                 </List.Item>
               )}
