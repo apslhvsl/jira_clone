@@ -16,7 +16,6 @@ from flask_cors import CORS
 from flask import request
 from flask_jwt_extended import JWTManager
 from routes.setup import setup_bp
-from routes.setup import setup_bp
 
 
 
@@ -41,7 +40,6 @@ app.register_blueprint(user_bp)
 app.register_blueprint(teams_bp)
 app.register_blueprint(notification_bp)
 app.register_blueprint(reports_bp)
-app.register_blueprint(setup_bp)
 app.register_blueprint(setup_bp)
 
 db.init_app(app)
