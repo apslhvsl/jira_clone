@@ -17,7 +17,9 @@ from flask import request
 from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, allow_headers="*", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+# For production, restrict CORS to your frontend's Render URL
+FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
+CORS(app, resources={r"/*": {"origins": "https://jira-clone-frontend-1uup.onrender.com"}}, allow_headers="*", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'very-secret-key'

@@ -4,6 +4,7 @@ import { Form, Input, Button, Typography, Alert, Card } from "antd";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { ProjectContext } from "../context/ProjectContext"; // Import context
+import API_BASE_URL from "../config";
 
 const { Title } = Typography;
 
@@ -17,7 +18,7 @@ function Login({ setIsAuthenticated }) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/login", {
+      const res = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

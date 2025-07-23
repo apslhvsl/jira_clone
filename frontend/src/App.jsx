@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/profile";
 import ProjectBoard from "./pages/ProjectBoard";
 import ProjectPage from "./pages/ProjectPage";
+import API_BASE_URL from "./config";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -100,7 +101,7 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("http://localhost:5000/me", {
+      fetch(`${API_BASE_URL}/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => (res.ok ? res.json() : null))
@@ -118,7 +119,7 @@ function App() {
       return;
     }
     // Verify token with backend
-    fetch("http://localhost:5000/me", {
+    fetch(`${API_BASE_URL}/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
